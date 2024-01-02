@@ -1,5 +1,6 @@
 package com.gustavo.backend.userapp.backenduserapp.controller;
 
+import com.gustavo.backend.userapp.backenduserapp.model.Dto.UserDto;
 import com.gustavo.backend.userapp.backenduserapp.model.User;
 import com.gustavo.backend.userapp.backenduserapp.model.UserRequest;
 import com.gustavo.backend.userapp.backenduserapp.services.UserService;
@@ -26,7 +27,7 @@ public class UserController {
 
 
     @GetMapping
-    public List<User>listar(){
+    public List<UserDto>listar(){
 
         return this.service.listar();
     }
@@ -34,7 +35,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<?> ById(@PathVariable Long id){
 
-        Optional<User> userOptional=service.findById(id);
+        Optional<UserDto> userOptional=service.findById(id);
 
         if (userOptional.isPresent()){
 
@@ -65,7 +66,7 @@ public class UserController {
             validation(result);
         }
 
-        Optional<User> o = service.update(user,id);
+        Optional<UserDto> o = service.update(user,id);
         if (o.isPresent()){
 
 
@@ -81,7 +82,7 @@ public class UserController {
 
     public ResponseEntity<?> eliminar(@PathVariable Long id){
 
-        Optional<User> o =service.findById(id);
+        Optional<UserDto> o =service.findById(id);
 
         if (o.isPresent()){
 

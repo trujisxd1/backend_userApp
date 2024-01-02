@@ -12,9 +12,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class JpaUserdetailsServices  implements UserDetailsService {
@@ -38,8 +39,9 @@ private UserRepository repository;
 
 
 ///Manejo de roles con list
-        List<GrantedAuthority>authorities= new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        List<GrantedAuthority>authorities= user.getRoles()
+                .stream()
+                .map(r -> new SimpleGrantedAuthority(r.getName())).collect(Collectors.toList());
 
         // Devuelve un objeto UserDetails que representa al usuario
 

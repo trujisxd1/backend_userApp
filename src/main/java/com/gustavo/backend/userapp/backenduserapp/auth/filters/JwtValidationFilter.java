@@ -1,6 +1,7 @@
 package com.gustavo.backend.userapp.backenduserapp.auth.filters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gustavo.backend.userapp.backenduserapp.auth.SimpleGrantedAuthorityJsonCreator;
 import com.gustavo.backend.userapp.backenduserapp.auth.TokenConfig;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -49,14 +50,13 @@ public class JwtValidationFilter  extends BasicAuthenticationFilter {
                    .build()                        // Se crea el analizador de tokens.
                    .parseClaimsJws(token)          // Se analiza el token JWT y se obtienen las reclamaciones (claims).
                    .getBody();
+           Object authoritiesClaim=claims.get("authorities");
 
            String username =claims.getSubject();// Se obtiene el nombre de usuario (subject) del token.
 
 
-            List<GrantedAuthority> authorities=new ArrayList<>();
-            // Crea una lista de autoridades (roles)
-
-            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+            Collection<? extends   GrantedAuthority> authorities= Arrays
+                    .asList(new ObjectMapper().addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityJsonCreator.class).readValue(authoritiesClaim.toString().getBytes(),SimpleGrantedAuthority[].class));
 
             // Crea un objeto de autenticación con el nombre de usuario y las autoridades
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username,null,authorities);

@@ -3,6 +3,7 @@ package com.gustavo.backend.userapp.backenduserapp.auth.filters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gustavo.backend.userapp.backenduserapp.auth.TokenConfig;
 import com.gustavo.backend.userapp.backenduserapp.model.User;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -12,10 +13,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -78,8 +81,15 @@ body.put("error",failed.getMessage());
             String username =((org.springframework.security.core.userdetails.User) authResult.getPrincipal())
                     .getUsername();
 
+            Collection <? extends GrantedAuthority>roles= authResult.getAuthorities();
+            boolean isAdmin=roles.stream().anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN"));
 
+        Claims claims  =Jwts.claims();
+        claims.put("authorities", new ObjectMapper().writeValueAsString(roles));
+        claims.put("isAdmin", isAdmin);
+        claims.put("username", username);
             String token= Jwts.builder()
+                    .setClaims(claims)
                     .setSubject(username)   // Establece el sujeto (nombre de usuario) en el token.
                     .signWith(SECRET_KEY) // Firma el token con una clave secreta (SECRET_KEY)
                     .setIssuedAt(new Date())  // Establece la fecha de emisión del token.
